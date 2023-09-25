@@ -2,6 +2,7 @@ const { SlashCommandBuilder} = require('discord.js');
 const { PermissionsBitField } = require('discord.js');
 const { Op } = require('sequelize');
 const { HuntEmbed } = require('../../components/HuntEmbed');
+const { PrettyEmbed } = require('../../components/PrettyEmbed');
 const { models } = require("../../database");
 const {
   COMMANDS,
@@ -199,7 +200,7 @@ module.exports = {
         const password = interaction.options.getString(CLUE.COLUMNS.PASSWORD, true);
     
         const clue = await models.Clue.findByPk(clueId);
-        await documentGuess(clue, password, interaction); // TODO: Consider making public shaming (aka guess tracking) optional
+        await documentGuess(clue, password, interaction);
     
         if (clue.status === CLUE.STATUS.LOCKED) {
             await interaction.reply({ 
@@ -209,8 +210,11 @@ module.exports = {
         } else if (isCorrectGuess(clue, password)) {
             await solveClue(clue, interaction);
         } else {
+            // Select a random funny response
+            const randomResponse = WRONG_GUESS_RESPONSES[Math.floor(Math.random() * WRONG_GUESS_RESPONSES.length)];
+    
             const notificationEmbed = NotificationEmbed({
-                message: `${getUserHandle(interaction)} failed to guess the password. Too bad!`,
+                message: `${getUserHandle(interaction)}: ${randomResponse}`,
                 icon: getAvatarImageUrl(interaction.member),
             });
             await interaction.reply({ 
@@ -345,7 +349,7 @@ async function solveClue(clue, interaction) {
   await clue.save();
 
   // Check if all clues in the hunt are solved
-  const hunt = await clue.getHunt();  // Assuming there's a relationship to fetch the hunt
+  const hunt = await clue.getHunt();
   const unsolvedClues = await models.Clue.count({
       where: {
           hunt_id: hunt.id,
@@ -355,40 +359,47 @@ async function solveClue(clue, interaction) {
 
   let notificationMessage = "";
 
-  if (unsolvedClues >= 1) { // If there are more clues left
-    notificationMessage = `${getUserHandles(interaction)} successfully solved the clue!`;
-    
-    // Unlock clues that were waiting on this one
-    const cluesToUnlock = await models.Clue.findAll({
-        where: {
-            unlocked_by: clue.id,
-            status: CLUE.STATUS.LOCKED,
-        },
-    });
-
-    for (const unlockedClue of cluesToUnlock) {
-        unlockedClue.status = CLUE.STATUS.UNLOCKED;
-        await unlockedClue.save();
-    }
-
-    if (cluesToUnlock.length > 0) {
-        notificationMessage += `\n Next clue available! do /clue list <huntid> to see the next!`;
-    }
-}
-
-  const notificationEmbed = NotificationEmbed({
+  // If there are more clues left
+  if (unsolvedClues >= 1) {
+    const randomPositiveResponse = RIGHT_GUESS_RESPONSES[Math.floor(Math.random() * RIGHT_GUESS_RESPONSES.length)];
+    notificationMessage = `${getUserHandles(interaction)}: ${randomPositiveResponse}`;
+  
+      // Unlock clues that were waiting on this one
+      const cluesToUnlock = await models.Clue.findAll({
+          where: {
+              unlocked_by: clue.id,
+              status: CLUE.STATUS.LOCKED,
+          },
+      });
+  
+      for (const unlockedClue of cluesToUnlock) {
+          unlockedClue.status = CLUE.STATUS.UNLOCKED;
+          await unlockedClue.save();
+      }
+  
+      if (cluesToUnlock.length > 0) {
+          notificationMessage += `\n🔓 Next clue available! Use /clue list <huntid> to see the next one.`;
+      }
+  }
+  
+  const notificationEmbed = PrettyEmbed({
+      title: "Clue Step Solved!",
       message: notificationMessage,
+      footer: "Continue your hunt, theres more steps to solve!",
       icon: ICONS.SPARKLES.GREEN,
   });
-
-  let embeds = [notificationEmbed];
+  
+  let embeds = [notificationEmbed];  
+  
 
   if (unsolvedClues === 0) {
-      const huntCompleteEmbed = NotificationEmbed({
-          message: `Congratulations ${getUserHandles(interaction)}, You solved the last clue! \n\nAll clues in this hunt have been solved, thanks for playing!`,
-          icon: ICONS.TROPHY,
-      });
-      embeds.push(huntCompleteEmbed);
+    const huntCompleteEmbed = PrettyEmbed({
+      title: "The hunt is over!",
+      message: `Congratulations ${getUserHandles(interaction)}, You solved the last clue!`,
+      footer: "All clues in this hunt have been solved, thanks for playing!",
+      icon: ICONS.TROPHY,
+  });
+  embeds.push(huntCompleteEmbed);
   }
 
   // Update the hunt embed
@@ -419,3 +430,29 @@ function isCorrectGuess(clue, password) {
 function getUserHandles(interaction) {
   return `<@${interaction.user.id}>`;
 }
+
+const WRONG_GUESS_RESPONSES = [
+  "Did you even try or was that a pocket guess?",
+  "Oh look, another wrong guess! What a surprise.",
+  "Was that your best shot? Yikes.",
+  "If I had a dime for every time you guessed wrong...",
+  "Keep going, maybe you'll get it in the next 100 tries!",
+  "Wow, you're really consistent at being wrong.",
+  "Maybe guessing games just aren't your thing.",
+  "I've seen better guesses from a potato.",
+  "You're setting records... in wrong guesses!",
+  "Wrong again! I'd say I'm surprised, but..."
+];
+
+const RIGHT_GUESS_RESPONSES = [
+  `${getUserHandles(interaction)} solved a clue! Well, even a broken clock is right twice a day.`,
+  `${getUserHandles(interaction)} solved a clue! Finally! Was starting to think you'd never get one.`,
+  `${getUserHandles(interaction)} solved a clue! Surprised you got that one. Were you peeking?`,
+  `${getUserHandles(interaction)} solved a clue! You actually got it? Blind luck, I assume.`,
+  `${getUserHandles(interaction)} solved a clue! Took you long enough!`,
+  `${getUserHandles(interaction)} solved a clue! Wait, that was correct? I wasn't expecting that.`,
+  `${getUserHandles(interaction)} solved a clue! Guess miracles do happen.`,
+  `${getUserHandles(interaction)} solved a clue! Congrats! It only took you... how many tries?`,
+  `${getUserHandles(interaction)} solved a clue! You got it right. Mark this day in history.`,
+  `${getUserHandles(interaction)} solved a clue! Oh, you actually knew this one? Color me surprised.`
+];

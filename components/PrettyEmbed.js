@@ -1,13 +1,18 @@
 const { ICONS, COLORS } = require("../Constants");
-const NotificationEmbed = function ({ color, message, icon, ephemeral }) {
+
+const PrettyEmbed = function ({ color, title, message, footer, icon, ephemeral }) {
   const embedColor = color ?? (ephemeral ? COLORS.WHISPER : COLORS.NOTIFICATION);
   return {
+    description: message,
+    footer: {
+      text: footer
+    },
     author: {
-      name: message,
+      name: title,
       icon_url: icon ?? ICONS.SPARKLES.BLUE,
     },
     color: embedColor,
   };
 };
 
-module.exports = { NotificationEmbed };
+module.exports = { PrettyEmbed };
