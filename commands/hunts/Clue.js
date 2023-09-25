@@ -445,14 +445,14 @@ const WRONG_GUESS_RESPONSES = [
 ];
 
 const RIGHT_GUESS_RESPONSES = [
-  `${getUserHandles(interaction)} solved a clue! Well, even a broken clock is right twice a day.`,
-  `${getUserHandles(interaction)} solved a clue! Finally! Was starting to think you'd never get one.`,
-  `${getUserHandles(interaction)} solved a clue! Surprised you got that one. Were you peeking?`,
-  `${getUserHandles(interaction)} solved a clue! You actually got it? Blind luck, I assume.`,
-  `${getUserHandles(interaction)} solved a clue! Took you long enough!`,
-  `${getUserHandles(interaction)} solved a clue! Wait, that was correct? I wasn't expecting that.`,
-  `${getUserHandles(interaction)} solved a clue! Guess miracles do happen.`,
-  `${getUserHandles(interaction)} solved a clue! Congrats! It only took you... how many tries?`,
-  `${getUserHandles(interaction)} solved a clue! You got it right. Mark this day in history.`,
-  `${getUserHandles(interaction)} solved a clue! Oh, you actually knew this one? Color me surprised.`
+  `solved a clue! Well, even a broken clock is right twice a day.`,
+  `solved a clue! Finally! Was starting to think you'd never get one.`,
+  `solved a clue! Surprised you got that one. Were you peeking?`,
+  `solved a clue! You actually got it? Blind luck, I assume.`,
+  `solved a clue! Took you long enough!`,
+  `solved a clue! Wait, that was correct? I wasn't expecting that.`,
+  `solved a clue! Guess miracles do happen.`,
+  `solved a clue! Congrats! It only took you... how many tries?`,
+  `solved a clue! You got it right. Mark this day in history.`,
+  `solved a clue! Oh, you actually knew this one? Color me surprised.`
 ];
