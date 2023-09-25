@@ -1,6 +1,5 @@
 const { SlashCommandBuilder} = require('discord.js');
 const { PermissionsBitField } = require('discord.js');
-
 const { Op } = require('sequelize');
 const { HuntEmbed } = require('../../components/HuntEmbed');
 const { models } = require("../../database");
@@ -216,7 +215,6 @@ module.exports = {
             });
             await interaction.reply({ 
                 embeds: [notificationEmbed], 
-                ephemeral: true 
             });
         }
         /*-----------------------------------------------------
@@ -374,7 +372,7 @@ async function solveClue(clue, interaction) {
     }
 
     if (cluesToUnlock.length > 0) {
-        notificationMessage += `\n\n${ICONS.KEY} Next clue available! do /clue list <huntid> to see the next!`;
+        notificationMessage += `\n\n$ Next clue available! do /clue list <huntid> to see the next!`;
     }
 }
 
@@ -398,7 +396,6 @@ async function solveClue(clue, interaction) {
   const message = await interaction.channel.messages.fetch(messageId);
   const refreshedHunt = await models.Hunt.findByPk(hunt.id, { include: models.Clue });  // Refetch the hunt
   const huntUpdateEmbed = await HuntEmbed(refreshedHunt);
-  embeds.push(huntUpdateEmbed);
   await message.edit({ embeds: [huntUpdateEmbed] });
 
   // Respond
