@@ -372,7 +372,7 @@ async function solveClue(clue, interaction) {
     }
 
     if (cluesToUnlock.length > 0) {
-        notificationMessage += `\n\n$ Next clue available! do /clue list <huntid> to see the next!`;
+        notificationMessage += `\n Next clue available! do /clue list <huntid> to see the next!`;
     }
 }
 
@@ -385,7 +385,7 @@ async function solveClue(clue, interaction) {
 
   if (unsolvedClues === 0) {
       const huntCompleteEmbed = NotificationEmbed({
-          message: `Congratulations ${getUserHandles(interaction)}, You solved the last clue! \n\n\n\nAll clues in this hunt have been solved, thanks for playing!`,
+          message: `Congratulations ${getUserHandles(interaction)}, You solved the last clue! \n\nAll clues in this hunt have been solved, thanks for playing!`,
           icon: ICONS.TROPHY,
       });
       embeds.push(huntCompleteEmbed);
