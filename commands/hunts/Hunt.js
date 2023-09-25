@@ -1,4 +1,5 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder, permissions } = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
 const { models } = require("../../database");
 const {
   COMMANDS,
@@ -142,6 +143,14 @@ module.exports = {
        *  RESPONSE: create
        *-----------------------------------------------------*/
       if (subcommand === SUBCOMMANDS.HUNT.CREATE) {
+        // Check for permissions
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+          await interaction.reply({
+              content: "You don't have the required permissions to create a hunt.",
+              ephemeral: true
+          });
+          return;
+      }     
         const title = interaction.options.getString(HUNT.COLUMNS.TITLE);
 
         // Create a hunt
@@ -171,6 +180,14 @@ module.exports = {
          *  RESPONSE: begin
          *-----------------------------------------------------*/
       } else if (subcommand === SUBCOMMANDS.HUNT.BEGIN) {
+        // Check for permissions
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+          await interaction.reply({
+              content: "You don't have the required permissions to begin a hunt.",
+              ephemeral: true
+          });
+          return;
+      }     
         const id = interaction.options.getInteger(HUNT.COLUMNS.ID);
         const hunt = await models.Hunt.findByPk(id);
 
@@ -187,6 +204,14 @@ module.exports = {
          *  RESPONSE: end
          *-----------------------------------------------------*/
       } else if (subcommand === SUBCOMMANDS.HUNT.END) {
+        // Check for permissions
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+          await interaction.reply({
+              content: "You don't have the required permissions to end a hunt.",
+              ephemeral: true
+          });
+          return;
+      }     
         const id = interaction.options.getInteger(HUNT.COLUMNS.ID, true);
         const hunt = await models.Hunt.findByPk(id);
 
@@ -203,6 +228,14 @@ module.exports = {
          *  COMMAND: delete
          *-----------------------------------------------------*/
       } else if (subcommand === SUBCOMMANDS.HUNT.DELETE) {
+        // Check for permissions
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+          await interaction.reply({
+              content: "You don't have the required permissions to delete a hunt.",
+              ephemeral: true
+          });
+          return;
+      }     
         const purge = interaction.options.getBoolean("purge");
         const id = interaction.options.getInteger(HUNT.COLUMNS.ID);
         const hunt = id ? await models.Hunt.findByPk(id) : null;
@@ -275,17 +308,11 @@ async function beginHunt(hunt, interaction) {
   }
 
   // Announce
-  const announcementEmbed = NotificationEmbed({
-    message: `${hunt.title} has commenced!`,
-    icon: ICONS.SPARKLES.GREEN,
-  });
   const responseEmbed = await HuntEmbed(hunt);
   const clueUnlockEmbed = NotificationEmbed({
-    message: `${cluesToUnlock.length} clue${
-      cluesToUnlock.length > 1 ? "s" : ""
-    } unlocked.`,
+    message: `To see the clues, simply do /clue list <huntid>`,
   });
-  const embeds = [announcementEmbed, responseEmbed];
+  const embeds = [responseEmbed];
   if (cluesToUnlock.length > 0) {
     embeds.push(clueUnlockEmbed);
   }

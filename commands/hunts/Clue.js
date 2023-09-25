@@ -1,4 +1,6 @@
-const { SlashCommandBuilder } = require("discord.js");
+const { SlashCommandBuilder} = require('discord.js');
+const { PermissionsBitField } = require('discord.js');
+
 const { Op } = require('sequelize');
 const { HuntEmbed } = require('../../components/HuntEmbed');
 const { models } = require("../../database");
@@ -140,6 +142,14 @@ module.exports = {
        *  RESPONSE: create
        *-----------------------------------------------------*/
       if (subcommand === SUBCOMMANDS.CLUE.CREATE) {
+        // Check for permissions
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+          await interaction.reply({
+              content: "You don't have the required permissions to create a clue.",
+              ephemeral: true
+          });
+          return;
+      }       
         // Fetch options
         const huntId = interaction.options.getInteger(CLUE.COLUMNS.HUNT, true);
         const title = interaction.options.getString(CLUE.COLUMNS.TITLE, false);
@@ -264,6 +274,14 @@ module.exports = {
          *  RESPONSE: delete
          *-----------------------------------------------------*/
       } else if (subcommand === SUBCOMMANDS.CLUE.DELETE) {
+        // Check for permissions
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+          await interaction.reply({
+              content: "You don't have the required permissions to delete a clue.",
+              ephemeral: true
+          });
+          return;
+      }     
         const clueId = interaction.options.getInteger(CLUE.COLUMNS.ID, false);
         const huntId = interaction.options.getInteger(CLUE.COLUMNS.HUNT, false);
         const purge = interaction.options.getBoolean("purge");
@@ -337,49 +355,51 @@ async function solveClue(clue, interaction) {
       }
   });
 
+  let notificationMessage = "";
+
+  if (unsolvedClues >= 1) { // If there are more clues left
+    notificationMessage = `${getUserHandles(interaction)} successfully solved the clue!`;
+    
+    // Unlock clues that were waiting on this one
+    const cluesToUnlock = await models.Clue.findAll({
+        where: {
+            unlocked_by: clue.id,
+            status: CLUE.STATUS.LOCKED,
+        },
+    });
+
+    for (const unlockedClue of cluesToUnlock) {
+        unlockedClue.status = CLUE.STATUS.UNLOCKED;
+        await unlockedClue.save();
+    }
+
+    if (cluesToUnlock.length > 0) {
+        notificationMessage += `\n\n${ICONS.KEY} Next clue available! do /clue list <huntid> to see the next!`;
+    }
+}
+
   const notificationEmbed = NotificationEmbed({
-    message: `${getUserHandle(interaction)} successfully solved the clue!`,
-    icon: ICONS.SPARKLES.GREEN,
+      message: notificationMessage,
+      icon: ICONS.SPARKLES.GREEN,
   });
 
   let embeds = [notificationEmbed];
 
   if (unsolvedClues === 0) {
       const huntCompleteEmbed = NotificationEmbed({
-        message: 'Congratulations! All clues in this hunt have been solved!',
-        icon: ICONS.TROPHY,
+          message: `Congratulations ${getUserHandles(interaction)}, You solved the last clue! \n\n\n\nAll clues in this hunt have been solved, thanks for playing!`,
+          icon: ICONS.TROPHY,
       });
       embeds.push(huntCompleteEmbed);
   }
 
-  // Unlock clues that were waiting on this one
-  const cluesToUnlock = await models.Clue.findAll({
-    where: {
-      unlocked_by: clue.id,
-      status: CLUE.STATUS.LOCKED,
-    },
-  });
-
-  for (const unlockedClue of cluesToUnlock) {
-    unlockedClue.status = CLUE.STATUS.UNLOCKED;
-    await unlockedClue.save();
-  }
-
-  if (cluesToUnlock.length > 0) {
-    const clueUnlockEmbed = NotificationEmbed({
-      message: `${cluesToUnlock.length} clue${cluesToUnlock.length > 1 ? "s" : ""} unlocked.`,
-      icon: ICONS.KEY,
-    });
-    embeds.push(clueUnlockEmbed);
-  }
-
-    // Update the hunt embed
-    const messageId = hunt.embedMessageId;
-    const message = await interaction.channel.messages.fetch(messageId);
-    const refreshedHunt = await models.Hunt.findByPk(hunt.id, { include: models.Clue });  // Refetch the hunt
-    const huntUpdateEmbed = await HuntEmbed(refreshedHunt);
-    embeds.push(huntUpdateEmbed);
-    await message.edit({ embeds: [huntUpdateEmbed] });
+  // Update the hunt embed
+  const messageId = hunt.embedMessageId;
+  const message = await interaction.channel.messages.fetch(messageId);
+  const refreshedHunt = await models.Hunt.findByPk(hunt.id, { include: models.Clue });  // Refetch the hunt
+  const huntUpdateEmbed = await HuntEmbed(refreshedHunt);
+  embeds.push(huntUpdateEmbed);
+  await message.edit({ embeds: [huntUpdateEmbed] });
 
   // Respond
   await interaction.reply({ embeds: embeds });
@@ -397,4 +417,8 @@ async function documentGuess(clue, password, interaction) {
 
 function isCorrectGuess(clue, password) {
   return clue.password && clue.password === password;
+}
+
+function getUserHandles(interaction) {
+  return `<@${interaction.user.id}>`;
 }
