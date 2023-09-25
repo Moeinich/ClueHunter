@@ -1,0 +1,24 @@
+{
+  "name": "scavenger",
+  "version": "1.0.0",
+  "description": "let the hunt begin",
+  "main": "index.js",
+  "repository": "https://github.com/CorvusCloudburst/scavenger.git",
+  "author": "Corvus Cloudburst",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "discord.js": "^14.9.0",
+    "dotenv": "^16.0.3",
+    "sequelize": "^6.31.0",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "prettier": "2.8.7"
+  },
+  "scripts": {
+    "deploy:test": "node update-scripts/deploy-commands-test.js",
+    "deploy:global": "node update-scripts/deploy-commands.js",
+    "start": "node index.js"
+  }
+}
