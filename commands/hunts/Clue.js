@@ -456,26 +456,43 @@ function getUserHandles(interaction) {
 
 const WRONG_GUESS_RESPONSES = [
   "did you even try or was that a pocket guess? 🤨",
-  "oh look, another wrong guess! What a surprise.",
-  "was that your best shot? Yikes.",
-  "if I had a dime for every time you guessed wrong... 🤔",
-  "keep going, maybe you'll get it in the next 100 tries!",
-  "wow, you're really consistent at being wrong.",
-  "maybe guessing games just aren't your thing.",
-  "I've seen better guesses from a potato.",
-  "you're setting records... in wrong guesses!",
-  "wrong again! I'd say I'm surprised, but..."
+  "oh look, another wrong guess! What a surprise. 🙄",
+  "was that your best shot? Yikes. 😬",
+  "if I had a dime for every time you guessed wrong... 🤔💰",
+  "keep going, maybe you'll get it in the next 100 tries! 😂",
+  "wow, you're really consistent at being wrong. 👏",
+  "maybe guessing games just aren't your thing. 🤷‍♂️",
+  "I've seen better guesses from a potato. 🥔",
+  "you're setting records... in wrong guesses! 🏆",
+  "wrong again! I'd say I'm surprised, but... 😏",
+  "your guessing game is as weak as your Wi-Fi signal. 📶❌",
+  "maybe try a magic 8 ball next time? 🔮",
+  "even a broken clock is right twice a day... just saying. ⏰",
+  "I bet you think the Earth is flat too. 🌍",
+  "and here I thought miracles could happen. ✨",
+  "you might wanna rethink your strategy... or lack thereof. 🤦‍♂️",
+  "if this was a talent show, you'd be sent home first. 🎤❌",
+  "ever thought of a career in being wrong? You'd excel! 🌟"
 ];
 
+
 const RIGHT_GUESS_RESPONSES = [
-  `solved a clue! Well, even a broken clock is right twice a day.`,
-  `solved a clue! Finally! Was starting to think you'd never get one.`,
-  `solved a clue! Surprised you got that one. Were you peeking?`,
-  `solved a clue! You actually got it? Blind luck, I assume.`,
-  `solved a clue! Took you long enough!`,
-  `solved a clue! Wait, that was correct? I wasn't expecting that.`,
-  `solved a clue! Guess miracles do happen.`,
-  `solved a clue! Congrats! It only took you... how many tries?`,
-  `solved a clue! You got it right. Mark this day in history.`,
-  `solved a clue! Oh, you actually knew this one? Color me surprised.`
+  `solved a clue! Well, even a broken clock is right twice a day. ⏰`,
+  `solved a clue! Finally! Was starting to think you'd never get one. 🙌`,
+  `solved a clue! Surprised you got that one. Were you peeking? 👀`,
+  `solved a clue! You actually got it? Blind luck, I assume. 🍀`,
+  `solved a clue! Took you long enough! ⏳`,
+  `solved a clue! Wait, that was correct? I wasn't expecting that. 😲`,
+  `solved a clue! Guess miracles do happen. ✨`,
+  `solved a clue! Congrats! It only took you... how many tries? 🧮`,
+  `solved a clue! You got it right. Mark this day in history. 📅`,
+  `solved a clue! Oh, you actually knew this one? Color me surprised. 🌈`,
+  `solved a clue! A moment of brilliance... or just a fluke? 🌟`,
+  `solved a clue! I almost didn't believe my eyes. 🤓`,
+  `solved a clue! Even the sun shines on a dog's tail some days. 🌞🐶`,
+  `solved a clue! Someone's been doing their homework. 📚`,
+  `solved a clue! I'll give credit where credit is due. 👏`,
+  `solved a clue! About time you showed some skill! 🕰️🔥`,
+  `solved a clue! Who knew you had it in you? 🎉`,
+  `solved a clue! Must've been a good day for you. 🎈`
 ];
