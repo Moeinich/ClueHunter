@@ -259,7 +259,7 @@ module.exports = {
         // Check clues were found
         if (!clues.length) {
           await interaction.reply({
-            message: "Could not find any matching clues on this server. Try widening your search!",
+            content: "Could not find any matching clues on this server. Try widening your search!",
             ephemeral: true
           });
         } else {
@@ -358,11 +358,12 @@ async function solveClue(clue, interaction) {
   });
 
   let notificationMessage = "";
-
+  let embeds = [];
+  
   // If there are more clues left
   if (unsolvedClues >= 1) {
-    const randomPositiveResponse = RIGHT_GUESS_RESPONSES[Math.floor(Math.random() * RIGHT_GUESS_RESPONSES.length)];
-    notificationMessage = `${getUserHandles(interaction)}: ${randomPositiveResponse}`;
+      const randomPositiveResponse = RIGHT_GUESS_RESPONSES[Math.floor(Math.random() * RIGHT_GUESS_RESPONSES.length)];
+      notificationMessage = `${getUserHandles(interaction)}, ${randomPositiveResponse}`;
   
       // Unlock clues that were waiting on this one
       const cluesToUnlock = await models.Clue.findAll({
@@ -378,39 +379,37 @@ async function solveClue(clue, interaction) {
       }
   
       if (cluesToUnlock.length > 0) {
-          notificationMessage += `\n🔓 Next clue available! Use /clue list <huntid> to see the next one.`;
+          notificationMessage += `\n\n🔓 Next clue available! Use /clue list <huntid> to see the next one.`;
       }
+  
+      const notificationEmbed = PrettyEmbed({
+          title: "Clue Step Solved!",
+          message: notificationMessage,
+          footer: "Continue your hunt, there's more steps to solve!",
+          icon: ICONS.SPARKLES.GREEN,
+      });
+      
+      embeds.push(notificationEmbed);
+  } else if (unsolvedClues === 0) { // No more clues left
+      const huntCompleteEmbed = PrettyEmbed({
+          title: "The hunt is over!",
+          message: `Congratulations ${getUserHandles(interaction)}, You solved the last clue!`,
+          footer: "🤩 All clues in this hunt have been solved, thanks for playing!",
+          icon: ICONS.TROPHY,
+      });
+      embeds.push(huntCompleteEmbed);
   }
   
-  const notificationEmbed = PrettyEmbed({
-      title: "Clue Step Solved!",
-      message: notificationMessage,
-      footer: "Continue your hunt, theres more steps to solve!",
-      icon: ICONS.SPARKLES.GREEN,
-  });
+  // Respond
+  await interaction.reply({ embeds: embeds });
   
-  let embeds = [notificationEmbed];  
-  
-
-  if (unsolvedClues === 0) {
-    const huntCompleteEmbed = PrettyEmbed({
-      title: "The hunt is over!",
-      message: `Congratulations ${getUserHandles(interaction)}, You solved the last clue!`,
-      footer: "All clues in this hunt have been solved, thanks for playing!",
-      icon: ICONS.TROPHY,
-  });
-  embeds.push(huntCompleteEmbed);
-  }
 
   // Update the hunt embed
   const messageId = hunt.embedMessageId;
   const message = await interaction.channel.messages.fetch(messageId);
   const refreshedHunt = await models.Hunt.findByPk(hunt.id, { include: models.Clue });  // Refetch the hunt
   const huntUpdateEmbed = await HuntEmbed(refreshedHunt);
-  await message.edit({ embeds: [huntUpdateEmbed] });
-
-  // Respond
-  await interaction.reply({ embeds: embeds });
+  await message.edit({ embeds: [huntUpdateEmbed] })
 }
 
 async function documentGuess(clue, password, interaction) {
@@ -432,16 +431,16 @@ function getUserHandles(interaction) {
 }
 
 const WRONG_GUESS_RESPONSES = [
-  "Did you even try or was that a pocket guess?",
-  "Oh look, another wrong guess! What a surprise.",
-  "Was that your best shot? Yikes.",
-  "If I had a dime for every time you guessed wrong...",
-  "Keep going, maybe you'll get it in the next 100 tries!",
-  "Wow, you're really consistent at being wrong.",
-  "Maybe guessing games just aren't your thing.",
+  "did you even try or was that a pocket guess? 🤨",
+  "oh look, another wrong guess! What a surprise.",
+  "was that your best shot? Yikes.",
+  "if I had a dime for every time you guessed wrong... 🤔",
+  "keep going, maybe you'll get it in the next 100 tries!",
+  "wow, you're really consistent at being wrong.",
+  "maybe guessing games just aren't your thing.",
   "I've seen better guesses from a potato.",
-  "You're setting records... in wrong guesses!",
-  "Wrong again! I'd say I'm surprised, but..."
+  "you're setting records... in wrong guesses!",
+  "wrong again! I'd say I'm surprised, but..."
 ];
 
 const RIGHT_GUESS_RESPONSES = [
