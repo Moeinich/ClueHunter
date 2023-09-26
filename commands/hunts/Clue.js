@@ -359,6 +359,8 @@ async function solveClue(clue, interaction) {
 
   let notificationMessage = "";
   let embeds = [];
+  let replyContent = "";  // Initialize a variable to hold your main reply's content
+
   
   // If there are more clues left
   if (unsolvedClues >= 1) {
@@ -379,8 +381,7 @@ async function solveClue(clue, interaction) {
       }
   
       if (cluesToUnlock.length > 0) {
-          notificationMessage += `\n\n🔓 Next clue available! Use /clue list <huntid> to see the next one.`;
-      }
+      notificationMessage += `\n\n🔓 Next clue available! Check the next clue below or use /clue list <huntid> to see the next one!`;
   
       const notificationEmbed = PrettyEmbed({
           title: "Clue Step Solved!",
@@ -388,8 +389,31 @@ async function solveClue(clue, interaction) {
           footer: "Continue your hunt, there's more steps to solve!",
           icon: ICONS.SPARKLES.GREEN,
       });
-      
       embeds.push(notificationEmbed);
+
+      //Embed the next clue!
+      const cluesToEmbed = [];
+      // Scope by hunt
+      const huntClues = await models.Clue.findAll({
+        where: { 
+          hunt_id: hunt.id,
+          status: 'UNLOCKED'  // Only fetch clues with status "UNLOCKED"
+        },
+      });
+      huntClues.forEach((clue) => cluesToEmbed.push(clue));
+
+      // Check clues were found
+      if (!cluesToEmbed.length) {
+        replyContent = "Could not find any matching clues on this server. Try widening your search!";
+    } else {
+        // Generate embeds for the clues
+        for (const clue of cluesToEmbed) {
+            const embed = await ClueEmbed(clue);
+            embeds.push(embed);
+        }
+    }
+    }
+
   } else if (unsolvedClues === 0) { // No more clues left
       const huntCompleteEmbed = PrettyEmbed({
           title: "The hunt is over!",
@@ -401,7 +425,7 @@ async function solveClue(clue, interaction) {
   }
   
   // Respond
-  await interaction.reply({ embeds: embeds });
+  await interaction.reply({ content: replyContent, embeds: embeds });
   
 
   // Update the hunt embed
