@@ -447,7 +447,7 @@ async function documentGuess(clue, password, interaction) {
 }
 
 function isCorrectGuess(clue, password) {
-  return clue.password && clue.password === password;
+  return clue.password && clue.password.toLowerCase() === password.toLowerCase();
 }
 
 function getUserHandles(interaction) {
