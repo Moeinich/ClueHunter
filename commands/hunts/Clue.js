@@ -256,22 +256,33 @@ module.exports = {
           }
         }
 
-        // Check clues were found
         if (!clues.length) {
           await interaction.reply({
-            content: "Could not find any matching clues on this server. Try widening your search!",
-            ephemeral: true
+              content: "Could not find any matching clues on this server. Try widening your search!",
+              ephemeral: true
           });
-        } else {
-          // Generate embeds
-          const clueEmbeds = [];
-          for (const clue of clues) {
+      } else {
+        // Generate embeds
+        const clueEmbeds = [];
+        for (const clue of clues) {
             const embed = await ClueEmbed(clue);
             clueEmbeds.push(embed);
-          }
-          // Reply
-          await interaction.reply({ embeds: clueEmbeds, ephemeral: true });
         }
+        
+        // Split the embeds into chunks of 10 to comply with Discord's limit
+        const embedChunks = [];
+        for (let i = 0; i < clueEmbeds.length; i += 10) {
+            embedChunks.push(clueEmbeds.slice(i, i + 10));
+        }
+        
+        // Send the first chunk as the initial reply
+        await interaction.reply({ embeds: embedChunks[0], ephemeral: true });
+        
+        // Send the rest of the chunks as follow-up messages
+        for (let i = 1; i < embedChunks.length; i++) {
+            await interaction.followUp({ embeds: embedChunks[i], ephemeral: true });
+        }
+    }
         /*-----------------------------------------------------
          *  RESPONSE: delete
          *-----------------------------------------------------*/
