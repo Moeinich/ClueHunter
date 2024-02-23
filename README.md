@@ -5,7 +5,7 @@ Welcome to Scavenger, a Node.js-powered scavenger hunt bot designed specifically
 Scavenger transforms your Discord server into an engaging and interactive clue hunt playground. Whether you're aiming to host a fun community event, team-building exercises, or just want to add a layer of excitement to your server, Scavenger is here to bring your community together through the joy of solving riddles and hunting for clues.
 
 ## Features
-- Customizable Clue Hunts: Tailor each scavenger hunt to your liking, with fully customizable clues, riddles, and rewards.
+- Customizable Clue Hunts: Tailor each scavenger hunt to your liking, with fully customizable clues and riddles.
 - Engaging Community Interaction: Encourage your community members to work together or compete against each other in solving puzzles.
 - Easy Setup: With a focus on user-friendliness, setting up your first clue hunt is a breeze.
 - Interactive Gameplay: Designed to keep participants engaged and entertained throughout the hunt.
